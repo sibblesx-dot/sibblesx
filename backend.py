@@ -2,13 +2,21 @@ from flask import Flask, request, jsonify
 import requests
 import os
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-HF_TOKEN = "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"
-HF_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
+HF_TOKEN = os.getenv('HF_TOKEN')
+HF_MODEL = os.getenv('HF_MODEL', 'mistralai/Mistral-7B-Instruct-v0.2')
 HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+
+# Validate token on startup
+if not HF_TOKEN:
+    print("⚠️  Warning: HF_TOKEN not found in environment variables!")
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
