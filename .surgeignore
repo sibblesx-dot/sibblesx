@@ -1,0 +1,19 @@
+.git
+.venv
+backend.py
+wsgi.py
+requirements.txt
+render.yaml
+Procfile
+.env
+.env.example
+env.txt
+env.example
+netlify.toml
+netlify (1).toml
+*.pyc
+__pycache__
+.gitignore
+DEPLOY.md
+.vscode
+node_modules

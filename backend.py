@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-import requests
 import os
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -10,13 +9,38 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-HF_TOKEN = os.getenv('HF_TOKEN')
-HF_MODEL = os.getenv('HF_MODEL', 'mistralai/Mistral-7B-Instruct-v0.2')
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+# Mock response database
+MOCK_RESPONSES = {
+    "web development": "I can help you with web development! We offer custom websites, web apps, and full-stack solutions. Reach out to sibblesx@gmail.com to discuss your project! 🚀",
+    "automation": "Automation is awesome! We specialize in Python scripts and N8N workflows to automate your workflows. What would you like to automate? 🤖",
+    "chatbot": "AI chatbots are my specialty! 😄 We can build custom chatbots like me for your business. Interested? Ping sibblesx@gmail.com",
+    "instagram": "We help manage Instagram pages with engaging content and growth strategies. Let's boost your presence! 📱",
+    "admin dashboard": "Need an admin dashboard? We build custom dashboards to manage your data efficiently. Let's chat! 💻",
+    "ai": "AI is the future! We're building AI-powered solutions. This chatbot is in testing - don't expect perfection yet! 😅",
+    "price": "We don't discuss prices here, but feel free to email sibblesx@gmail.com or call +91 8791012083 for quotes.",
+    "contact": "You can reach out to sibblesx@gmail.com or call +91 8791012083. We'd love to hear from you! 📞",
+}
 
-# Validate token on startup
-if not HF_TOKEN:
-    print("⚠️  Warning: HF_TOKEN not found in environment variables!")
+DEFAULT_RESPONSES = [
+    "Hey! Thanks for chatting with me. What can I help you with? 😊",
+    "I'm Sibbles! I can help with web development, automation, AI chatbots, and more. What interests you? 🚀",
+    "That's interesting! Want to know more about sibblesX services? Just ask! 💡",
+    "I'm here to help! Feel free to ask about web dev, AI chatbots, automation, or anything else. 🎯",
+]
+
+import random
+
+def get_mock_response(user_message):
+    """Generate a contextual mock response based on keywords"""
+    user_lower = user_message.lower()
+    
+    # Check for keywords in the user message
+    for keyword, response in MOCK_RESPONSES.items():
+        if keyword in user_lower:
+            return response
+    
+    # Return a random default response if no keywords match
+    return random.choice(DEFAULT_RESPONSES)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -27,53 +51,17 @@ def chat():
         if not user_message:
             return jsonify({'error': 'Empty message'}), 400
         
-        # System prompt for the AI
-        system_prompt = """You are Sibbles, a calm and funny AI assistant for sibblesX. You help visitors learn about web development, automation, AI chatbots, Instagram management, web apps, and admin dashboards.
-
-Owner: Ajay (Age 18)
-Personality: Calm and funny with casual, friendly tone.
-Important: NEVER mention prices or costs. If asked, direct to email sibblesx@gmail.com or phone +91 8791012083.
-
-Keep responses concise (2-3 sentences max), friendly, and helpful."""
-
-        # Call HuggingFace API
-        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-        payload = {
-            "inputs": f"{system_prompt}\n\nUser: {user_message}\nAssistant:",
-            "parameters": {
-                "max_new_tokens": 100,
-                "temperature": 0.7,
-            }
-        }
+        # Generate mock response
+        bot_response = get_mock_response(user_message)
         
-        print(f"Making request to: {HF_API_URL}")
-        response = requests.post(HF_API_URL, headers=headers, json=payload, timeout=30)
-        print(f"Response status: {response.status_code}")
-        print(f"Response text: {response.text}")
-        
-        if response.status_code != 200:
-            return jsonify({'error': 'API error', 'details': response.text}), response.status_code
-        
-        result = response.json()
-        
-        # Extract the generated text
-        if isinstance(result, list) and len(result) > 0:
-            generated_text = result[0].get('generated_text', '')
-            # Extract just the assistant response
-            if 'Assistant:' in generated_text:
-                bot_response = generated_text.split('Assistant:')[1].strip().split('\n')[0].strip()
-            else:
-                bot_response = generated_text.strip()
-        else:
-            bot_response = "I'm thinking... 🤔"
+        print(f"User: {user_message}")
+        print(f"Bot: {bot_response}")
         
         return jsonify({'response': bot_response}), 200
     
-    except requests.exceptions.Timeout:
-        return jsonify({'error': 'Request timeout. Please try again.'}), 504
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Something went wrong. Please try again.'}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health():

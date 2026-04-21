@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: sibblesX
-    envVarGroups:
-      - id: backend_env
+    name: sibblesX-backend
+    runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 60
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11
-    staticPublishPath: .
+        value: "3.11"

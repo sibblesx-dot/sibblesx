@@ -5,7 +5,7 @@ const CHATBOT_CONFIG = {
     ownerAge: 18,
     personality: {
         tone: "calm and funny",
-        openingMessage: "Hey there! 👋 I'm Sibbles, sibblesX's personal AI assistant. How can I help you today?",
+        openingMessage: "Hey there! 👋 I'm Sibbles, sibblesX's personal AI assistant. ⚠️ TESTING MODE: This bot is in beta - responses are mock data for now. Don't expect perfection! 😅",
     },
     apiUrl: "http://localhost:5000/api/chat"
 };
@@ -293,4 +293,30 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         window.sibblesBot = new SibblesBot();
     }, 500);
+
+    getMockResponse(message) {
+        const responses = {
+            'web': 'I can help with web development! We offer custom websites, web apps, and full-stack solutions. sibblesx@gmail.com 🚀',
+            'automation': 'Automation rocks! Python scripts & N8N workflows are our forte. What would you automate? 🤖',
+            'chatbot': 'AI chatbots are my thing! We build custom bots. Interested? sibblesx@gmail.com 😄',
+            'instagram': 'Instagram management is our specialty! Let's boost your presence. 📱',
+            'dashboard': 'Need an admin dashboard? We build custom dashboards efficiently. 💻',
+            'ai': 'This bot is in TESTING - responses are pre-programmed for now! 😅',
+            'price': 'Check pricing at sibblesx@gmail.com or call +91 8791012083. 📞',
+            'contact': 'Email: sibblesx@gmail.com or Call: +91 8791012083 📞',
+            'hello': 'Hey! What can I help with today? 😊',
+        };
+        
+        const msgLower = message.toLowerCase();
+        for (const [key, resp] of Object.entries(responses)) {
+            if (msgLower.includes(key)) return resp;
+        }
+        
+        const defaults = [
+            'Great question! Want to know about sibblesX services? 🎯',
+            'That's awesome! Feel free to ask about our services. 💡',
+            'Interesting! Let's chat more. What else? 🚀',
+        ];
+        return defaults[Math.floor(Math.random() * defaults.length)];
+    }
 });
