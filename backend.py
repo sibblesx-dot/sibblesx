@@ -27,10 +27,6 @@ def chat():
         if not user_message:
             return jsonify({'error': 'Empty message'}), 400
         
-        # For now, return a simple response to test the connection
-        # TODO: Fix HuggingFace API call
-        return jsonify({'response': f"I received your message: '{user_message}'. The AI backend is working, but I'm using a simple response for now! 😊"}), 200
-        
         # System prompt for the AI
         system_prompt = """You are Sibbles, a calm and funny AI assistant for sibblesX. You help visitors learn about web development, automation, AI chatbots, Instagram management, web apps, and admin dashboards.
 
