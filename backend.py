@@ -80,6 +80,10 @@ def health():
     return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     # For local development
     app.run(debug=True, port=5000)
     # For production use: gunicorn backend:app
+=======
+    app.run(debug=True, port=5000)
+>>>>>>> c76ea49c8f18fcc55e022ec67c20c474e1269e57
