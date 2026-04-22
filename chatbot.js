@@ -92,7 +92,7 @@ class SibblesBot {
     toggleChat() {
         const chatbot = document.getElementById('sibbles-chatbot');
         this.isOpen = !this.isOpen;
-        chatbot.classList.toggle('open', this.isOpen);
+        chatbot.classList.toggle('active', this.isOpen);
         
         if (this.isOpen) {
             document.getElementById('sibbles-input').focus();
@@ -102,7 +102,7 @@ class SibblesBot {
     closeChat() {
         const chatbot = document.getElementById('sibbles-chatbot');
         this.isOpen = false;
-        chatbot.classList.remove('open');
+        chatbot.classList.remove('active');
     }
 
     sendMessage() {
