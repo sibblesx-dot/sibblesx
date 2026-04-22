@@ -7,19 +7,6 @@ const CHATBOT_CONFIG = {
         tone: "calm and funny",
         openingMessage: "Hey there! 👋 I'm Sibbles, sibblesX's personal AI assistant. ⚠️ TESTING MODE: This bot is in beta - responses are mock data for now. Don't expect perfection! 😅",
     },
-    apiUrl: "http://localhost:5000/api/chat"
-};
-
-// Service info for context
-const SERVICES_INFO = {
-    "basic website": "2 days",
-    "web development": "2-5 days depending on complexity",
-    "web app": "5-10 days",
-    "admin dashboard": "7-14 days",
-    "ai chatbot": "3-7 days",
-    "instagram page management": "ongoing service",
-    "automation python": "3-7 days",
-    "n8n automation": "2-5 days"
 };
 
 class SibblesBot {
@@ -105,7 +92,7 @@ class SibblesBot {
     toggleChat() {
         const chatbot = document.getElementById('sibbles-chatbot');
         this.isOpen = !this.isOpen;
-        chatbot.classList.toggle('active', this.isOpen);
+        chatbot.classList.toggle('open', this.isOpen);
         
         if (this.isOpen) {
             document.getElementById('sibbles-input').focus();
@@ -115,10 +102,10 @@ class SibblesBot {
     closeChat() {
         const chatbot = document.getElementById('sibbles-chatbot');
         this.isOpen = false;
-        chatbot.classList.remove('active');
+        chatbot.classList.remove('open');
     }
 
-    async sendMessage() {
+    sendMessage() {
         const input = document.getElementById('sibbles-input');
         const sendBtn = document.getElementById('sibbles-send');
         const message = input.value.trim();
@@ -138,29 +125,32 @@ class SibblesBot {
         this.isLoading = true;
         this.addMessage('✍️ Typing...', 'bot-thinking');
 
-        try {
-            // Get response
-            const response = await this.generateResponse(message);
+        // Simulate API delay
+        setTimeout(() => {
+            try {
+                // Get response
+                const response = this.generateResponse(message);
 
-            // Remove thinking message
-            const messagesDiv = document.getElementById('sibbles-messages');
-            const thinkingMsg = messagesDiv.querySelector('.bot-thinking');
-            if (thinkingMsg) {
-                thinkingMsg.remove();
+                // Remove thinking message
+                const messagesDiv = document.getElementById('sibbles-messages');
+                const thinkingMsg = messagesDiv.querySelector('.bot-thinking');
+                if (thinkingMsg) {
+                    thinkingMsg.remove();
+                }
+
+                // Add bot response
+                this.addMessage(response, 'bot');
+            } catch (error) {
+                console.error('Error generating response:', error);
+                this.addMessage('Oops! Something went wrong. Please try again! 😅', 'bot');
+            } finally {
+                this.isLoading = false;
+                input.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+                input.focus();
             }
-
-            // Add bot response
-            this.addMessage(response, 'bot');
-        } catch (error) {
-            console.error('Error generating response:', error);
-            this.addMessage('Oops! Something went wrong. Please try again! 😅', 'bot');
-        } finally {
-            this.isLoading = false;
-            input.disabled = false;
-            sendBtn.disabled = false;
-            sendBtn.style.opacity = '1';
-            input.focus();
-        }
+        }, 800);
     }
 
     addMessage(text, sender) {
@@ -186,7 +176,7 @@ class SibblesBot {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    async generateResponse(userMessage) {
+    generateResponse(userMessage) {
         const lowerMessage = userMessage.toLowerCase();
 
         const contains = (keywords) => keywords.some(word => lowerMessage.includes(word));
@@ -240,7 +230,7 @@ class SibblesBot {
         }
 
         if (contains(['hello', 'hi', 'hey', 'welcome'])) {
-            return `Hey there! 👋 I'm Sibbles, your calm and funny AI assistant. Tell me about your project and I’ll give you the best timeline.`;
+            return `Hey there! 👋 I'm Sibbles, your calm and funny AI assistant. Tell me about your project and I'll give you the best timeline.`;
         }
 
         return this.generateSmartResponse(userMessage);
@@ -255,68 +245,17 @@ class SibblesBot {
             `Awesome to hear from you! 🚀 We love working on innovative projects. Tell me more about what you need!`
         ];
 
-        // Simple keyword-based responses
         if (userMessage.includes('?')) {
             return responses[Math.floor(Math.random() * responses.length)];
         }
 
         return `I received your message: "${userMessage}". That's really interesting! 🤔 For the best assistance, feel free to reach out to us at sibblesx@gmail.com or call +91 8791012083. We'd love to help! 😊`;
     }
-
-    async callHuggingFaceAPI(userMessage) {
-        try {
-            const response = await fetch(CHATBOT_CONFIG.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: userMessage })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.response || `That's a great question! Feel free to reach out to us at sibblesx@gmail.com for more details! 😊`;
-
-        } catch (error) {
-            console.error('Backend API Error:', error);
-            return `Hmm, I'm having a little moment here! 😅 But you can always reach out to us at sibblesx@gmail.com or call +91 8791012083. We'll be super happy to help!`;
-        }
-    }
 }
 
 // Initialize chatbot when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Add a small delay to ensure everything is loaded
     setTimeout(() => {
         window.sibblesBot = new SibblesBot();
-    }, 500);
-
-    getMockResponse(message) {
-        const responses = {
-            'web': 'I can help with web development! We offer custom websites, web apps, and full-stack solutions. sibblesx@gmail.com 🚀',
-            'automation': 'Automation rocks! Python scripts & N8N workflows are our forte. What would you automate? 🤖',
-            'chatbot': 'AI chatbots are my thing! We build custom bots. Interested? sibblesx@gmail.com 😄',
-            'instagram': 'Instagram management is our specialty! Let's boost your presence. 📱',
-            'dashboard': 'Need an admin dashboard? We build custom dashboards efficiently. 💻',
-            'ai': 'This bot is in TESTING - responses are pre-programmed for now! 😅',
-            'price': 'Check pricing at sibblesx@gmail.com or call +91 8791012083. 📞',
-            'contact': 'Email: sibblesx@gmail.com or Call: +91 8791012083 📞',
-            'hello': 'Hey! What can I help with today? 😊',
-        };
-        
-        const msgLower = message.toLowerCase();
-        for (const [key, resp] of Object.entries(responses)) {
-            if (msgLower.includes(key)) return resp;
-        }
-        
-        const defaults = [
-            'Great question! Want to know about sibblesX services? 🎯',
-            'That's awesome! Feel free to ask about our services. 💡',
-            'Interesting! Let's chat more. What else? 🚀',
-        ];
-        return defaults[Math.floor(Math.random() * defaults.length)];
-    }
+    }, 300);
 });
