@@ -178,78 +178,158 @@ class SibblesBot {
 
     generateResponse(userMessage) {
         const lowerMessage = userMessage.toLowerCase();
-
         const contains = (keywords) => keywords.some(word => lowerMessage.includes(word));
 
-        if (contains(['owner', 'ajay', 'who are you'])) {
-            return `I work with Ajay, the owner of sibblesX! He's 18 years old and an amazing developer and entrepreneur. Ask me anything about web apps, automation, or chatbots.`;
+        // OWNER & IDENTITY
+        if (contains(['owner', 'ajay', 'who are you', 'who am i chatting with'])) {
+            return `I work with Ajay, the owner of sibblesX! He's 18 years old and an amazing developer and entrepreneur. Ask me anything about web apps, automation, or chatbots. 🚀`;
         }
 
-        if (contains(['price', 'cost', 'pay', 'charge'])) {
-            return `We customize pricing based on project requirements. For a clear quote, contact us at sibblesx@gmail.com or +91 8791012083. I can help you plan the timeline first!`;
+        // GREETINGS
+        if (contains(['hello', 'hi', 'hey', 'welcome', 'hii'])) {
+            return `Hey there! 👋 I'm Sibbles, your AI assistant. Tell me about your project - whether it's a website, automation, chatbot, or something else, I'll give you the best timeline! 🎯`;
         }
 
-        if (contains(['coaching', 'academy', 'training', 'tutor']) && contains(['website', 'site'])) {
-            return `A coaching website usually takes around 4-8 days depending on features like booking, pricing, courses, and student dashboards. If you want a simple landing page first, that can be ready in about 2 days.`;
+        // SERVICES LIST
+        if (contains(['service', 'offer', 'what can you do', 'capabilities', 'what do you offer'])) {
+            return `I offer: 🌐 Web Development, 🤖 AI Chatbots, ⚙️ Python/N8N Automation, 📱 Web Apps, 📊 Admin Dashboards, 📸 Instagram Management. What interests you?`;
         }
 
-        if (contains(['how long', 'time', 'timeline', 'take']) && contains(['website', 'site'])) {
-            return `A basic website takes about 2 days. If it includes advanced features like dashboards, AI chat, or student management, it may take 5-14 days depending on the scope.`;
+        // PRICING - redirect but helpful
+        if (contains(['price', 'cost', 'pay', 'charge', 'budget', 'how much'])) {
+            return `Pricing varies by project scope! 📊 Simple sites: ~2-3 days. Complex apps with dashboards: 5-14+ days. For exact quotes on your project, email sibblesx@gmail.com or call +91 8791012083. I can help you plan first! 💡`;
         }
 
-        if (contains(['website', 'site', 'webpage']) && contains(['build', 'create', 'need', 'want', 'make'])) {
-            return `I can build your website quickly and cleanly. Simple sites take about 2 days, while custom apps and dashboards take a little more time based on the features.`;
+        // SPECIFIC SERVICES
+        if (contains(['automation', 'automate', 'workflow'])) {
+            return `Automation is my favorite! 🔧 Python scripts & N8N workflows to save you hours. Timeline: 3-7 days depending on complexity. What workflow needs automating? 🤔`;
         }
 
-        if (contains(['service', 'offer', 'what can you do'])) {
-            return `I offer these services: Automation with Python & n8n, Web Development, AI Chatbots, Web Apps, Admin Dashboards, and Instagram Page Management. Which one are you interested in?`;
+        if (contains(['chatbot', 'ai assistant', 'bot development'])) {
+            return `Building AI chatbots is my specialty! 🤖 (Just like me!) They take 3-7 days. More features = more time. What should your chatbot do? 😊`;
         }
 
-        if (contains(['automation'])) {
-            return `Automation is my sweet spot! 🔧 I use Python and n8n to save time and reduce repetitive work. Typical projects take 3-7 days.`;
+        if (contains(['instagram', 'social media'])) {
+            return `Instagram management is an ongoing service! 📱 I can help with content strategy, posting, engagement, and growth. Let's make you viral! 🚀`;
         }
 
-        if (contains(['chatbot'])) {
-            return `Yes, I build AI chatbots like me! 🤖 They usually take 3-7 days depending on how smart you want them to be.`;
+        // WEBSITE REQUESTS - SMART DETECTION
+        // This handles ANY website type - restaurant, shop, blog, portfolio, etc.
+        const isWebsiteRequest = contains(['website', 'site', 'web', 'build', 'create', 'develop', 'need', 'want', 'make', 'project', 'platform', 'online presence']) && !contains(['price', 'cost', 'budget']);
+        
+        if (isWebsiteRequest) {
+            // Detect website type
+            const websiteType = this.detectWebsiteType(lowerMessage);
+            
+            // Detect features mentioned
+            const features = this.detectFeatures(lowerMessage);
+            
+            // Calculate base time
+            let timeEstimate = 2;
+            let description = websiteType;
+            
+            // Add time for each feature
+            if (features.length > 0) {
+                timeEstimate = Math.min(2 + (features.length * 1.5), 14);
+                description = websiteType + ` with ${features.join(', ')}`;
+            } else if (contains(['simple', 'basic', 'landing', 'page'])) {
+                timeEstimate = 2;
+                description = 'simple ' + websiteType;
+            } else if (contains(['complex', 'advanced', 'full-featured', 'custom'])) {
+                timeEstimate = 10;
+                description = 'advanced ' + websiteType;
+            }
+            
+            return `Nice! A ${description} website typically takes ${timeEstimate}-${Math.min(timeEstimate + 3, 14)} days. Features like booking, payments, or dashboards add more time. Want to discuss specifics? 💬`;
         }
 
-        if (contains(['dashboard'])) {
-            return `Admin dashboards are perfect for your data. I can build one in about 7-14 days with charts, controls, and clean layout.`;
+        // CONTACT
+        if (contains(['contact', 'reach', 'email', 'phone', 'get in touch'])) {
+            return `📧 Email: sibblesx@gmail.com\n📱 Phone: +91 8791012083\n\nI'm here to help! Feel free to reach out anytime. 😊`;
         }
 
-        if (contains(['instagram'])) {
-            return `Instagram management is an ongoing service. I can help with posting strategy, engagement, and content ideas.`;
-        }
-
-        if (contains(['web app'])) {
-            return `Web apps are custom tools that solve real problems. They usually take 5-10 days depending on complexity and integrations.`;
-        }
-
-        if (contains(['contact', 'reach', 'email', 'phone'])) {
-            return `You can reach us at: 📧 sibblesx@gmail.com or 📱 +91 8791012083. I'm happy to help with any project idea!`;
-        }
-
-        if (contains(['hello', 'hi', 'hey', 'welcome'])) {
-            return `Hey there! 👋 I'm Sibbles, your calm and funny AI assistant. Tell me about your project and I'll give you the best timeline.`;
-        }
-
+        // Fallback smart responses
         return this.generateSmartResponse(userMessage);
     }
 
-    generateSmartResponse(userMessage) {
-        const responses = [
-            `That's an interesting question! 🤔 I'd love to help you with that. Could you tell me more about what you're looking for? Or feel free to reach out to us directly at sibblesx@gmail.com!`,
-            `Great question! 😊 I'm here to help with all things web development, automation, and digital solutions. What specific service are you interested in?`,
-            `I appreciate you reaching out! 💬 We specialize in creating amazing digital experiences. What can I help you build today?`,
-            `Thanks for chatting with me! 🎯 Whether it's automation, web apps, or AI solutions, we've got you covered. What's on your mind?`,
-            `Awesome to hear from you! 🚀 We love working on innovative projects. Tell me more about what you need!`
+    detectWebsiteType(text) {
+        const types = [
+            { keywords: ['restaurant', 'food', 'cafe', 'dining', 'menu'], type: 'restaurant' },
+            { keywords: ['shop', 'store', 'ecommerce', 'e-commerce', 'sell', 'product', 'selling'], type: 'e-commerce store' },
+            { keywords: ['portfolio', 'showcase', 'gallery', 'work'], type: 'portfolio' },
+            { keywords: ['blog', 'news', 'article'], type: 'blog' },
+            { keywords: ['saas', 'app', 'software', 'tool', 'service'], type: 'SaaS app' },
+            { keywords: ['coaching', 'academy', 'training', 'course', 'education'], type: 'coaching/learning' },
+            { keywords: ['clinic', 'hospital', 'doctor', 'health', 'medical'], type: 'healthcare' },
+            { keywords: ['salon', 'spa', 'barber'], type: 'salon/spa' },
+            { keywords: ['realestate', 'property', 'apartment', 'house'], type: 'real estate' },
+            { keywords: ['agency', 'studio', 'service'], type: 'service' },
         ];
-
-        if (userMessage.includes('?')) {
-            return responses[Math.floor(Math.random() * responses.length)];
+        
+        for (const { keywords, type } of types) {
+            if (keywords.some(word => text.includes(word))) {
+                return type;
+            }
         }
+        return 'custom';
+    }
 
-        return `I received your message: "${userMessage}". That's really interesting! 🤔 For the best assistance, feel free to reach out to us at sibblesx@gmail.com or call +91 8791012083. We'd love to help! 😊`;
+    detectFeatures(text) {
+        const featureMap = [
+            { keywords: ['booking', 'appointment', 'reserve', 'schedule'], feature: 'booking system' },
+            { keywords: ['payment', 'checkout', 'card', 'pay', 'purchase'], feature: 'payment processing' },
+            { keywords: ['login', 'account', 'user', 'profile', 'authentication'], feature: 'user accounts' },
+            { keywords: ['chat', 'messaging', 'support', 'contact'], feature: 'chat/messaging' },
+            { keywords: ['dashboard', 'analytics', 'stats', 'report', 'data'], feature: 'admin dashboard' },
+            { keywords: ['email', 'notification', 'alert'], feature: 'notifications' },
+            { keywords: ['review', 'rating', 'comment'], feature: 'reviews/ratings' },
+            { keywords: ['order', 'cart', 'delivery'], feature: 'ordering system' },
+            { keywords: ['inventory', 'stock', 'manage'], feature: 'inventory management' },
+            { keywords: ['beautiful', 'design', 'ui', 'ux', 'modern'], feature: 'advanced design' },
+        ];
+        
+        const detected = [];
+        for (const { keywords, feature } of featureMap) {
+            if (keywords.some(word => text.includes(word))) {
+                detected.push(feature);
+            }
+        }
+        return detected;
+    }
+
+    generateSmartResponse(userMessage) {
+        const lowerMessage = userMessage.toLowerCase();
+        
+        // If it's a question, give a helpful response
+        if (userMessage.includes('?')) {
+            const questionResponses = [
+                `That's a great question! 🤔 Tell me more about it and I can give you a better answer.`,
+                `I'd love to help! Could you give me a bit more context? What's your project about?`,
+                `Interesting! To give you the best timeline, could you describe your project idea?`,
+                `That's awesome! 🎯 Tell me more about what you're thinking and I can help!`,
+            ];
+            return questionResponses[Math.floor(Math.random() * questionResponses.length)];
+        }
+        
+        // Check if it mentions a technology or tool
+        if (lowerMessage.match(/react|vue|angular|node|python|javascript|php|laravel|wordpress|html|css|database/i)) {
+            return `Nice tech choice! 🚀 Web development with those technologies typically takes 5-14 days depending on complexity. Let's discuss your specific project! 💬`;
+        }
+        
+        // Check if it sounds like a project description
+        if (lowerMessage.length > 20 && (lowerMessage.includes('want') || lowerMessage.includes('need') || lowerMessage.includes('build'))) {
+            return `That sounds interesting! 🎨 To give you an accurate timeline, tell me: Is this a website, web app, or something else? What features are important? 🤔`;
+        }
+        
+        // Default helpful responses
+        const defaultResponses = [
+            `Sounds cool! 🚀 Tell me more about your project and I can give you a timeline estimate.`,
+            `I'm here to help! 💡 What kind of project are you thinking about?`,
+            `That's interesting! 🎯 Feel free to describe your project idea and I'll help with timelines.`,
+            `Let's chat about your project! 🌟 What needs to be built?`,
+        ];
+        
+        return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
     }
 }
 
